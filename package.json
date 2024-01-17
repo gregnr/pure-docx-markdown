@@ -1,0 +1,22 @@
+{
+  "name": "docx-to-markdown",
+  "version": "0.1.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.8.10",
+    "@zip.js/zip.js": "^2.7.32",
+    "mdast": "^3.0.0",
+    "mdast-util-to-markdown": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.4",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
