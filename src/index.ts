@@ -1,14 +1,13 @@
 import { readFile } from 'fs/promises';
 import { Root } from 'mdast';
 import { toMarkdown } from 'mdast-util-to-markdown';
-import {
-  HeadingProcessor,
-  ListItemProcessor,
-  PassthroughProcessor,
-  mapElements,
-  processElements,
-} from './convert';
 import { getDocxElements } from './docx';
+import { mapElements } from './mapper';
+import { ParagraphMapper } from './mappers/paragraph-mapper';
+import { processElements } from './processor';
+import { HeadingProcessor } from './processors/heading-processor';
+import { ListProcessor } from './processors/list-processor';
+import { PassthroughProcessor } from './processors/passthrough-processor';
 
 const docxSample = await readFile('my-doc.docx');
 
@@ -17,9 +16,13 @@ const docxBlob = new Blob([docxSample], {
 });
 
 const docxElements = await getDocxElements(docxBlob);
-const intermediateElements = mapElements(docxElements);
+
+const intermediateElements = await mapElements(docxElements, [
+  new ParagraphMapper(),
+]);
+
 const markdownElements = await processElements(intermediateElements, [
-  new ListItemProcessor(),
+  new ListProcessor(),
   new HeadingProcessor(),
   new PassthroughProcessor(),
 ]);
