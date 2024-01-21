@@ -1,43 +1,28 @@
 export interface Processor<T> {
-  start?(elements: T[]): Promise<void>;
-  processElement(
-    element: T,
+  start?(nodes: T[]): Promise<void>;
+  processNode(
+    node: T,
     index: number,
-    elements: T[]
+    nodes: T[]
   ): Promise<T[] | false | undefined>;
-  end?(elements: T[]): Promise<T[] | undefined>;
+  end?(nodes: T[]): Promise<T[] | undefined>;
 }
 
 /**
- * Processes intermediate elements into final markdown elements.
- *
- * Performs various tasks such as:
- *
- * - Combining multiple paragraph elements that were marked as
- *   list items into a single markdown list
- *
- * - Converting paragraph elements into headings based on styles
- *   and heuristics
+ * Processes intermediate nodes into final markdown nodes.
  */
-export async function processElements<T>(
-  intermediateElements: T[],
-  processors: Processor<T>[]
-) {
+export async function processNodes<T>(nodes: T[], processors: Processor<T>[]) {
   const processedNodes: T[] = [];
 
   for (const processor of processors) {
-    await processor.start?.(intermediateElements);
+    await processor.start?.(nodes);
   }
 
-  for (let i = 0; i < intermediateElements.length; i++) {
-    const element = intermediateElements[i];
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
 
     for (const processor of processors) {
-      const result = await processor.processElement(
-        element,
-        i,
-        intermediateElements
-      );
+      const result = await processor.processNode(node, i, nodes);
 
       if (result === undefined) {
         continue;

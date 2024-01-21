@@ -1,35 +1,34 @@
-import { List, Paragraph } from 'mdast';
-import { MappedElement } from '../mapper';
+import { List, Paragraph, RootContent } from 'mdast';
 import { Processor } from '../processor';
 
 /**
- * Accumulates consecutive paragraph elements marked as
- * `ListParagraph` into a single markdown `List` element.
+ * Accumulates consecutive paragraph nodes marked as
+ * `ListParagraph` into a single markdown `List` node.
  */
-export class ListProcessor implements Processor<MappedElement> {
+export class ListProcessor implements Processor<RootContent> {
   currentList: Paragraph[] = [];
 
-  async processElement(element: MappedElement) {
-    // If the element's paragraph style is marked as a list,
+  async processNode(node: RootContent) {
+    // If the node's paragraph style is marked as a list,
     // add it to the current list and exclude from the output
     // (return false)
     if (
-      element.type === 'paragraph' &&
-      element.data?.paragraphStyle === 'ListParagraph'
+      node.type === 'paragraph' &&
+      node.data?.paragraphStyle === 'ListParagraph'
     ) {
-      this.currentList.push(element);
+      this.currentList.push(node);
       return false;
     }
 
-    // If we later come across a new non-list element, this
+    // If we later come across a new non-list node, this
     // indicates the end of the current list, so return the
-    // current list as a single list element
+    // current list as a single list node
     if (this.currentList.length > 0) {
       return this.flushList();
     }
   }
 
-  // If the list still contains elements at the end of the
+  // If the list still contains nodes at the end of the
   // document, flush it
   async end() {
     if (this.currentList.length > 0) {
@@ -37,7 +36,7 @@ export class ListProcessor implements Processor<MappedElement> {
     }
   }
 
-  // Returns the current list as a single list element
+  // Returns the current list as a single list node
   // and clears it
   flushList() {
     const list: List = {

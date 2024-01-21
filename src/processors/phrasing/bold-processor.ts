@@ -8,18 +8,18 @@ import { Processor } from '../../processor';
 export class BoldProcessor implements Processor<PhrasingContent> {
   currentList: PhrasingContent[] = [];
 
-  async processElement(
-    element: PhrasingContent,
+  async processNode(
+    node: PhrasingContent,
     index: number,
     nodes: PhrasingContent[]
   ) {
     if (
       // These are the nodes we currently track bold for
-      (element.type === 'text' || element.type === 'link') &&
+      (node.type === 'text' || node.type === 'link') &&
       // Ensure the current node is marked as bold
-      element.data?.isBold
+      node.data?.isBold
     ) {
-      this.currentList.push(element);
+      this.currentList.push(node);
 
       // Exclude from the output (return false)
       return false;
@@ -30,7 +30,7 @@ export class BoldProcessor implements Processor<PhrasingContent> {
     // so return the current list as a single `Strong` node
     if (this.currentList.length > 0) {
       const previousNode = nodes[index - 1];
-      const nextNode = element;
+      const nextNode = node;
 
       return this.flushList(previousNode, nextNode);
     }
@@ -47,7 +47,7 @@ export class BoldProcessor implements Processor<PhrasingContent> {
     }
   }
 
-  // Returns the current bold list as a single `Strong` element
+  // Returns the current bold list as a single `Strong` node
   // and clears it
   flushList(previousNode?: PhrasingContent, nextNode?: PhrasingContent) {
     try {
@@ -78,7 +78,7 @@ export class BoldProcessor implements Processor<PhrasingContent> {
       else if (!this.validateAlphanumericStart(previousNode)) {
         // This isn't a valid bold node, so our
         // best option is to strip away the bold completely
-        // (add all the bold elements back as regular text nodes)
+        // (add all the bold nodes back as regular text nodes)
         return this.currentList.slice();
       }
 
@@ -100,7 +100,7 @@ export class BoldProcessor implements Processor<PhrasingContent> {
       else if (!this.validateAlphanumericEnd(nextNode)) {
         // This isn't a valid bold node, so our
         // best option is to strip away the bold completely
-        // (add all the bold elements back as regular text nodes)
+        // (add all the bold nodes back as regular text nodes)
         return this.currentList.slice();
       }
 

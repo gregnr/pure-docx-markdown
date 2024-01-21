@@ -1,5 +1,5 @@
 import { Element } from '@xmldom/xmldom/lib/dom';
-import { Link, Paragraph, PhrasingContent, Strong, Text } from 'mdast';
+import { Link, Paragraph, PhrasingContent, Text } from 'mdast';
 import { getChild, getChildren } from '../docx';
 import { Mapper } from '../mapper';
 import { validateEmail } from '../util';

@@ -1,36 +1,35 @@
-import { Heading, Paragraph } from 'mdast';
-import { MappedElement } from '../mapper';
+import { Heading, Paragraph, RootContent } from 'mdast';
 import { Processor } from '../processor';
 import { shallowCompare } from '../util';
 
-export class HeadingProcessor implements Processor<MappedElement> {
+export class HeadingProcessor implements Processor<RootContent> {
   styles: any;
 
-  async start(elements: MappedElement[]) {
-    const paragraphElements = elements.filter(
-      (element): element is Paragraph => element.type === 'paragraph'
+  async start(nodes: RootContent[]) {
+    const paragraphNodes = nodes.filter(
+      (node): node is Paragraph => node.type === 'paragraph'
     );
 
-    this.styles = this.predictStyles(paragraphElements);
+    this.styles = this.predictStyles(paragraphNodes);
   }
 
-  async processElement(element: MappedElement) {
-    if (element.type !== 'paragraph') {
+  async processNode(node: RootContent) {
+    if (node.type !== 'paragraph') {
       return;
     }
 
-    if (this.styles.h1Style.matches.includes(element)) {
+    if (this.styles.h1Style.matches.includes(node)) {
       const heading: Heading = {
         type: 'heading',
         depth: 1,
-        children: element.children,
+        children: node.children,
       };
       return [heading];
-    } else if (this.styles.h2Style.matches.includes(element)) {
+    } else if (this.styles.h2Style.matches.includes(node)) {
       const heading: Heading = {
         type: 'heading',
         depth: 2,
-        children: element.children,
+        children: node.children,
       };
       return [heading];
     }

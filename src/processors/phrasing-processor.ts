@@ -1,22 +1,21 @@
-import { PhrasingContent } from 'mdast';
-import { MappedElement } from '../mapper';
-import { Processor, processElements } from '../processor';
+import { PhrasingContent, RootContent } from 'mdast';
+import { Processor, processNodes } from '../processor';
 
-export class PhrasingProcessor implements Processor<MappedElement> {
+export class PhrasingProcessor implements Processor<RootContent> {
   constructor(public processors: Processor<PhrasingContent>[]) {}
 
-  async processElement(element: MappedElement) {
-    if (element.type !== 'paragraph') {
+  async processNode(node: RootContent) {
+    if (node.type !== 'paragraph') {
       return;
     }
 
     // Create a sub-processor for paragraph children (phrasing content)
-    const processedChildren = await processElements(
-      element.children,
+    const processedChildren = await processNodes(
+      node.children,
       this.processors
     );
 
-    element.children = processedChildren;
+    node.children = processedChildren;
 
     // We only modify the children, not the outer node itself
     return undefined;
