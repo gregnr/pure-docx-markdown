@@ -8,4 +8,16 @@ declare module 'mdast' {
     justifyClass?: string;
     paragraphStyle?: string;
   }
+
+  interface TextData {
+    fontSize?: number;
+    isBold: boolean;
+    isUnderlined: boolean;
+  }
+
+  interface LinkData {
+    fontSize?: number;
+    isBold: boolean;
+    isUnderlined: boolean;
+  }
 }
