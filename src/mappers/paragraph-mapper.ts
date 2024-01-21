@@ -106,17 +106,7 @@ export class ParagraphMapper implements Mapper {
 
     const runProperties = this.getRunProperties(paragraphPropertyNode);
 
-    if (!runProperties) {
-      return;
-    }
-
-    const runPropertyNode = getChild(paragraphPropertyNode, 'w:rPr');
-
-    if (!runPropertyNode) {
-      return;
-    }
-
-    const id = element.getAttribute('w14:paraId');
+    const id = element.getAttribute('w14:paraId') ?? undefined;
     const paragraphStyle =
       getChild(paragraphPropertyNode, 'w:pStyle')?.getAttribute('w:val') ??
       undefined;

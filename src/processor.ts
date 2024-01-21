@@ -1,11 +1,16 @@
+export type ProcessResult<T> = {
+  nodes: T[];
+  continueProcessing: boolean;
+};
+
 export interface Processor<T> {
   start?(nodes: T[]): Promise<void>;
   processNode(
     node: T,
     index: number,
     nodes: T[]
-  ): Promise<T[] | false | undefined>;
-  end?(nodes: T[]): Promise<T[] | undefined>;
+  ): Promise<ProcessResult<T> | undefined>;
+  end?(nodes: T[]): Promise<ProcessResult<T> | undefined>;
 }
 
 /**
@@ -24,23 +29,33 @@ export async function processNodes<T>(nodes: T[], processors: Processor<T>[]) {
     for (const processor of processors) {
       const result = await processor.processNode(node, i, nodes);
 
-      if (result === undefined) {
+      if (!result) {
         continue;
       }
 
-      if (result === false) {
+      const { nodes: returnedNodes, continueProcessing } = result;
+
+      processedNodes.push(...returnedNodes);
+
+      if (!continueProcessing) {
         break;
       }
-
-      processedNodes.push(...result);
     }
   }
 
   for (const processor of processors) {
     const result = await processor.end?.(processedNodes);
 
-    if (result) {
-      processedNodes.push(...result);
+    if (!result) {
+      continue;
+    }
+
+    const { nodes: returnedNodes, continueProcessing } = result;
+
+    processedNodes.push(...returnedNodes);
+
+    if (!continueProcessing) {
+      break;
     }
   }
 

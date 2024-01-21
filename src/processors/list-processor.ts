@@ -11,13 +11,14 @@ export class ListProcessor implements Processor<RootContent> {
   async processNode(node: RootContent) {
     // If the node's paragraph style is marked as a list,
     // add it to the current list and exclude from the output
-    // (return false)
     if (
       node.type === 'paragraph' &&
       node.data?.paragraphStyle === 'ListParagraph'
     ) {
       this.currentList.push(node);
-      return false;
+
+      // Exclude from the output (exit processing loop)
+      return { nodes: [], continueProcessing: false };
     }
 
     // If we later come across a new non-list node, this
@@ -50,6 +51,6 @@ export class ListProcessor implements Processor<RootContent> {
     // Clear the internal list
     this.currentList = [];
 
-    return [list];
+    return { nodes: [list], continueProcessing: true };
   }
 }

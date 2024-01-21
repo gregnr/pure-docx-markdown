@@ -23,8 +23,8 @@ export class BoldProcessor implements Processor<PhrasingContent> {
     ) {
       this.currentList.push(node);
 
-      // Exclude from the output (return false)
-      return false;
+      // Exclude from the output (exit processing loop)
+      return { nodes: [], continueProcessing: false };
     }
 
     // If we later come across a new non-bold node, this
@@ -81,7 +81,7 @@ export class BoldProcessor implements Processor<PhrasingContent> {
         // This isn't a valid bold node, so our
         // best option is to strip away the bold completely
         // (add all the bold nodes back as regular text nodes)
-        return this.currentList.slice();
+        return { nodes: this.currentList.slice(), continueProcessing: true };
       }
 
       // Space at the end of a bold node is invalid.
@@ -103,11 +103,11 @@ export class BoldProcessor implements Processor<PhrasingContent> {
         // This isn't a valid bold node, so our
         // best option is to strip away the bold completely
         // (add all the bold nodes back as regular text nodes)
-        return this.currentList.slice();
+        return { nodes: this.currentList.slice(), continueProcessing: true };
       }
 
       // Add our new bold node and any other necessary nodes
-      return newNodes;
+      return { nodes: newNodes, continueProcessing: true };
     } finally {
       // Clear the internal bold node list
       this.currentList = [];
