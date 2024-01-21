@@ -8,6 +8,8 @@ import { processElements } from './processor';
 import { HeadingProcessor } from './processors/heading-processor';
 import { ListProcessor } from './processors/list-processor';
 import { PassthroughProcessor } from './processors/passthrough-processor';
+import { PhrasingProcessor } from './processors/phrasing-processor';
+import { BoldProcessor } from './processors/phrasing/bold-processor';
 
 const docxSample = await readFile('my-doc.docx');
 
@@ -22,6 +24,7 @@ const intermediateElements = await mapElements(docxElements, [
 ]);
 
 const markdownElements = await processElements(intermediateElements, [
+  new PhrasingProcessor([new BoldProcessor(), new PassthroughProcessor()]),
   new ListProcessor(),
   new HeadingProcessor(),
   new PassthroughProcessor(),

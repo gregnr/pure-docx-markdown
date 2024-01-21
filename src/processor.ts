@@ -1,12 +1,11 @@
-import { RootContent } from 'mdast';
-import { MappedElement } from './mapper';
-
-export interface Processor {
-  start?(elements: MappedElement[]): Promise<void>;
+export interface Processor<T> {
+  start?(elements: T[]): Promise<void>;
   processElement(
-    element: MappedElement
-  ): Promise<RootContent | false | undefined>;
-  end?(): Promise<RootContent | undefined>;
+    element: T,
+    index: number,
+    elements: T[]
+  ): Promise<T[] | false | undefined>;
+  end?(elements: T[]): Promise<T[] | undefined>;
 }
 
 /**
@@ -20,19 +19,25 @@ export interface Processor {
  * - Converting paragraph elements into headings based on styles
  *   and heuristics
  */
-export async function processElements(
-  intermediateElements: MappedElement[],
-  processors: Processor[]
+export async function processElements<T>(
+  intermediateElements: T[],
+  processors: Processor<T>[]
 ) {
-  const markdownElements: RootContent[] = [];
+  const processedNodes: T[] = [];
 
   for (const processor of processors) {
     await processor.start?.(intermediateElements);
   }
 
-  for (const element of intermediateElements) {
+  for (let i = 0; i < intermediateElements.length; i++) {
+    const element = intermediateElements[i];
+
     for (const processor of processors) {
-      const result = await processor.processElement(element);
+      const result = await processor.processElement(
+        element,
+        i,
+        intermediateElements
+      );
 
       if (result === undefined) {
         continue;
@@ -42,17 +47,17 @@ export async function processElements(
         break;
       }
 
-      markdownElements.push(result);
+      processedNodes.push(...result);
     }
   }
 
   for (const processor of processors) {
-    const result = await processor.end?.();
+    const result = await processor.end?.(processedNodes);
 
     if (result) {
-      markdownElements.push(result);
+      processedNodes.push(...result);
     }
   }
 
-  return markdownElements;
+  return processedNodes;
 }

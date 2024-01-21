@@ -3,7 +3,7 @@ import { MappedElement } from '../mapper';
 import { Processor } from '../processor';
 import { shallowCompare } from '../util';
 
-export class HeadingProcessor implements Processor {
+export class HeadingProcessor implements Processor<MappedElement> {
   styles: any;
 
   async start(elements: MappedElement[]) {
@@ -25,14 +25,14 @@ export class HeadingProcessor implements Processor {
         depth: 1,
         children: element.children,
       };
-      return heading;
+      return [heading];
     } else if (this.styles.h2Style.matches.includes(element)) {
       const heading: Heading = {
         type: 'heading',
         depth: 2,
         children: element.children,
       };
-      return heading;
+      return [heading];
     }
   }
 

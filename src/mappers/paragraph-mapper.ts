@@ -29,134 +29,13 @@ export class ParagraphMapper implements Mapper {
       }
     }
 
-    const processedChildren: PhrasingContent[] = [];
-    let boldNodes: PhrasingContent[] = [];
-
-    function flushList(
-      previousChild: PhrasingContent,
-      nextChild?: PhrasingContent
-    ) {
-      let cancelBold = false;
-
-      const firstBoldNode = boldNodes[0];
-      const lastBoldNode = boldNodes[boldNodes.length - 1];
-
-      // Add all the bold nodes as children of a strong node
-      const strongNode: Strong = {
-        type: 'strong',
-        children: boldNodes,
-      };
-
-      // We may need to add multiple nodes, so track them here
-      const newNodes: PhrasingContent[] = [strongNode];
-
-      const previousNodeEndsWithAlphanumeric =
-        previousChild &&
-        previousChild.type === 'text' &&
-        /[a-zA-Z0-9]/.test(previousChild.value.slice(-1));
-
-      const firstBoldNodeStartsWithNonAlphanumeric =
-        firstBoldNode.type === 'text' &&
-        /[^a-zA-Z0-9]/.test(firstBoldNode.value[0]);
-
-      const nextNodeStartsWithAlphanumeric =
-        nextChild &&
-        nextChild.type === 'text' &&
-        /[a-zA-Z0-9]/.test(nextChild.value[0]);
-
-      const lastBoldNodeEndsWithNonAlphanumeric =
-        lastBoldNode.type === 'text' &&
-        /[^a-zA-Z0-9]/.test(lastBoldNode.value.slice(-1));
-
-      // Space at the beginning or end of a bold node is invalid.
-      // We can safely fix this by moving the space before the
-      // bold node (if at beginning) or after the bold node (if at end)
-      if (firstBoldNode.type === 'text' && firstBoldNode.value[0] === ' ') {
-        firstBoldNode.value = firstBoldNode.value.trimStart();
-        newNodes.unshift({
-          type: 'text',
-          value: ' ',
-        });
-      }
-
-      if (
-        lastBoldNode.type === 'text' &&
-        lastBoldNode.value.slice(-1) === ' '
-      ) {
-        lastBoldNode.value = lastBoldNode.value.trimEnd();
-        newNodes.push({
-          type: 'text',
-          value: ' ',
-        });
-      }
-
-      // If the previous non-bold node ends with an alphanumeric, then the
-      // bold node must also start in an alphanumeric, otherwise the bold node invalid.
-      // Same applies for the other side (end of the bold node and the start of the next node).
-      else if (
-        (previousNodeEndsWithAlphanumeric &&
-          firstBoldNodeStartsWithNonAlphanumeric) ||
-        (nextNodeStartsWithAlphanumeric && lastBoldNodeEndsWithNonAlphanumeric)
-      ) {
-        // This isn't a valid bold node, so our
-        // best option is to strip away the bold completely
-        // (add all the bold elements back as regular text nodes)
-        cancelBold = true;
-      }
-
-      if (cancelBold) {
-        // Add all the bold elements back as regular text nodes
-        processedChildren.push(...boldNodes);
-      } else {
-        // Add our new bold node and any other necessary nodes
-        processedChildren.push(...newNodes);
-      }
-
-      // Clear the internal bold node list
-      boldNodes = [];
-    }
-
-    for (const mappedChild of mappedChildren) {
-      if (
-        // These are the nodes we currently track bold for
-        (mappedChild.type === 'text' || mappedChild.type === 'link') &&
-        // Ensure the current node is marked as bold
-        mappedChild.data?.isBold &&
-        // If it's a text node, make sure it's not just white space
-        (mappedChild.type !== 'text' || mappedChild.value.trim() !== '')
-      ) {
-        boldNodes.push(mappedChild);
-      } else {
-        // First node before the set of bold nodes
-        const previousChild = processedChildren[processedChildren.length - 1];
-
-        // First node after the set of bold nodes
-        const nextChild = mappedChild;
-
-        // If we've reached a non-bold node and have collected 1 or more
-        // bold nodes before this, wrap them in a strong node
-        if (boldNodes.length > 0) {
-          flushList(previousChild, nextChild);
-        }
-
-        // Don't forget to add the next non-bold node
-        processedChildren.push(nextChild);
-      }
-    }
-
-    const previousChild = processedChildren[processedChildren.length - 1];
-
-    if (boldNodes.length > 0) {
-      flushList(previousChild);
-    }
-
-    if (processedChildren.length === 0) {
+    if (mappedChildren.length === 0) {
       return;
     }
 
     const paragraph: Paragraph = {
       type: 'paragraph',
-      children: processedChildren,
+      children: mappedChildren,
       data: paragraphProperties,
     };
 

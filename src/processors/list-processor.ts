@@ -3,10 +3,10 @@ import { MappedElement } from '../mapper';
 import { Processor } from '../processor';
 
 /**
- * Accumulates paragraph elements marked as `ListParagraph`
- * into a single markdown `List` element.
+ * Accumulates consecutive paragraph elements marked as
+ * `ListParagraph` into a single markdown `List` element.
  */
-export class ListProcessor implements Processor {
+export class ListProcessor implements Processor<MappedElement> {
   currentList: Paragraph[] = [];
 
   async processElement(element: MappedElement) {
@@ -51,6 +51,6 @@ export class ListProcessor implements Processor {
     // Clear the internal list
     this.currentList = [];
 
-    return list;
+    return [list];
   }
 }
