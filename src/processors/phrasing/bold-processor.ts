@@ -16,8 +16,10 @@ export class BoldProcessor implements Processor<PhrasingContent> {
     if (
       // These are the nodes we currently track bold for
       (node.type === 'text' || node.type === 'link') &&
-      // Ensure the current node is marked as bold
-      node.data?.isBold
+      // Ensure the node is marked as bold
+      node.data?.isBold &&
+      // Ensure the node is not white space
+      (node.type !== 'text' || node.value.trim() !== '')
     ) {
       this.currentList.push(node);
 
