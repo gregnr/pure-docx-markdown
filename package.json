@@ -1,5 +1,6 @@
 {
-  "name": "docx-to-markdown",
+  "name": "pure-docx-markdown",
+  "description": "Pure JS/TS docx to markdown converter with semantic predictions",
   "version": "0.1.0",
   "main": "index.js",
   "license": "MIT",
